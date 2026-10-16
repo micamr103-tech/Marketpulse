@@ -1,0 +1,114 @@
+{
+  "name": "marketpulse",
+  "version": "2.0.0",
+  "type": "module",
+  "description": "AI market intelligence terminal. Installs on Windows, Android and iOS — no server required.",
+  "license": "MIT",
+  "author": {
+    "name": "Marko Tomic"
+  },
+  "homepage": "https://github.com/micamr103-tech/marketpulse#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/micamr103-tech/marketpulse.git"
+  },
+  "bugs": {
+    "url": "https://github.com/micamr103-tech/marketpulse/issues"
+  },
+  "keywords": [
+    "market",
+    "stocks",
+    "finance",
+    "sentiment-analysis",
+    "ai",
+    "llm",
+    "transformers",
+    "pwa",
+    "electron",
+    "android"
+  ],
+  "main": "electron/main.mjs",
+  "scripts": {
+    "dev": "vite",
+    "dev:server": "node server/index.mjs",
+    "build": "tsc --noEmit && vite build",
+    "build:web": "tsc --noEmit && vite build",
+    "build:desktop": "tsc --noEmit && vite build --mode electron",
+    "build:exe": "npm run build:desktop && electron-builder --win",
+    "start": "electron .",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "icons": "node scripts/make-icons.mjs",
+    "verify": "node scripts/verify.mjs",
+    "verify:desktop": "node scripts/verify-desktop.mjs",
+    "test:model": "node scripts/test-ondevice.mjs"
+  },
+  "dependencies": {
+    "@huggingface/transformers": "^4.3.1",
+    "clsx": "^2.1.1",
+    "framer-motion": "^14.2.0",
+    "lucide-react": "^1.57.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "recharts": "^3.10.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/node": "^26.6.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "electron": "^44.7.2",
+    "electron-builder": "^26.0.12",
+    "puppeteer-core": "^25.14.0",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.4"
+  },
+  "build": {
+    "appId": "com.marko.marketpulse",
+    "productName": "MarketPulse",
+    "copyright": "Copyright © Marko Tomic",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json",
+      "build/icon-256.png",
+      "!node_modules/**/*",
+      "!**/*.map"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon-256.png",
+      "artifactName": "MarketPulse-${version}-${arch}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "MarketPulse"
+    },
+    "portable": {
+      "artifactName": "MarketPulse-${version}-portable.exe"
+    }
+  }
+}
