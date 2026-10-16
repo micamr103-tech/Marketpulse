@@ -1,22 +1,18 @@
 /**
- * Generates the PWA icon set from one SVG, using headless Edge.
+ * Generates the app icon set from one SVG.
  * Run: node scripts/make-icons.mjs
  */
-import { execFileSync } from "node:child_process";
-import { mkdirSync, writeFileSync, existsSync } from "node:fs";
+import sharp from "sharp";
+import { mkdirSync, copyFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-const EDGE = [
-  "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
-  "C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe",
-].find((p) => existsSync(p));
-
 const OUT = resolve("public");
+const BUILD = resolve("build");   // electron-builder reads buildResources from here
 mkdirSync(OUT, { recursive: true });
+mkdirSync(BUILD, { recursive: true });
 
 /** The app mark: a rising market line inside a rounded square. */
-const svg = (size) => `<!doctype html><html><body style="margin:0">
-<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 512 512">
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#0d1a1c"/>
@@ -38,23 +34,30 @@ const svg = (size) => `<!doctype html><html><body style="margin:0">
   <path d="M96 336 L168 288 L232 312 L304 220 L360 246 L416 168"
         fill="none" stroke="url(#line)" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/>
   <circle cx="416" cy="168" r="22" fill="#3ff0bd"/>
-</svg></body></html>`;
+</svg>`;
 
-const tmp = resolve("icon-temp.html");
+// Rendered once at the master size, then downscaled. Everything outside the
+// rounded square stays transparent because the SVG has no background of its own
+// — which is the point: an earlier version screenshotted an HTML page, which
+// baked the page's white default background into all four corners as opaque
+// white. Invisible on a white page, glaring on GitHub's dark theme or on any
+// dark desktop background.
+const master = await sharp(Buffer.from(svg), { density: 384 })
+  .resize(512, 512)
+  .png()
+  .toBuffer();
+
 const sizes = [16, 32, 48, 64, 72, 96, 108, 128, 144, 152, 180, 192, 256, 384, 512];
 
 for (const size of sizes) {
-  writeFileSync(tmp, svg(size));
   const out = resolve("public", `icon-${size}.png`);
-  execFileSync(EDGE, [
-    "--headless=new",
-    "--disable-gpu",
-    "--no-sandbox",
-    "--hide-scrollbars",
-    `--window-size=${size},${size}`,
-    `--screenshot=${out}`,
-    `file:///${tmp.replace(/\\/g, "/")}`,
-  ]);
+  await sharp(master).resize(size, size).png().toFile(out);
+
+  // electron-builder takes its icon from build/, not public/.
+  if (size === 256 || size === 512) {
+    copyFileSync(out, resolve(BUILD, `icon-${size}.png`));
+  }
   console.log("icon", size);
 }
+
 console.log("done");
