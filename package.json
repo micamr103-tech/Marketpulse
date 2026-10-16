@@ -7,13 +7,13 @@
   "author": {
     "name": "Marko Tomic"
   },
-  "homepage": "https://github.com/micamr103-tech/marketpulse#readme",
+  "homepage": "https://github.com/micamr103-tech/Marketpulse#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/micamr103-tech/marketpulse.git"
+    "url": "git+https://github.com/micamr103-tech/Marketpulse.git"
   },
   "bugs": {
-    "url": "https://github.com/micamr103-tech/marketpulse/issues"
+    "url": "https://github.com/micamr103-tech/Marketpulse/issues"
   },
   "keywords": [
     "market",
